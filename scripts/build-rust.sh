@@ -28,18 +28,38 @@ BUILD_DIR="$RELEASE_DIR/build"
 cargo build --release --target "$TARGET"
 
 # ---------------------------------------------------------------------------
-# Copy ONNX Runtime static library to a stable path for Xcode linking.
+# Find and stage the ONNX Runtime library for Xcode.
 #
-# Cargo's staticlib bundles Rust code and llama.cpp (compiled by
-# llama-cpp-sys's build script). But ONNX Runtime (downloaded by ort-sys)
-# is a separate pre-built .a that cargo doesn't merge into our staticlib.
-# We copy it to a predictable path so Xcode can link it alongside ours.
+# ort-sys downloads a pre-built ONNX Runtime (usually a .dylib on macOS).
+# Cargo doesn't bundle dynamic libraries into our staticlib, so Xcode
+# needs to link and embed it separately.
 # ---------------------------------------------------------------------------
+echo "Searching for ONNX Runtime library in build output..."
+find "$BUILD_DIR" -name "*onnxruntime*" \( -name "*.a" -o -name "*.dylib" \) 2>/dev/null | while read f; do
+    echo "  Found: $f"
+done
+
+# Prefer static, fall back to dynamic
 ORT_LIB=$(find "$BUILD_DIR" -name "libonnxruntime.a" -path "*/out/*" 2>/dev/null | head -1)
+if [ -z "$ORT_LIB" ]; then
+    ORT_LIB=$(find "$BUILD_DIR" -name "libonnxruntime.dylib" -path "*/out/*" 2>/dev/null | head -1)
+fi
+if [ -z "$ORT_LIB" ]; then
+    # Broadest search: any onnxruntime library
+    ORT_LIB=$(find "$BUILD_DIR" -name "*onnxruntime*" \( -name "*.a" -o -name "*.dylib" \) 2>/dev/null | head -1)
+fi
 
 if [ -n "$ORT_LIB" ]; then
-    echo "Copying ONNX Runtime library for Xcode: $ORT_LIB"
-    cp "$ORT_LIB" "$RELEASE_DIR/libonnxruntime.a"
+    BASENAME=$(basename "$ORT_LIB")
+    echo "Staging ONNX Runtime library: $ORT_LIB -> $RELEASE_DIR/$BASENAME"
+    cp "$ORT_LIB" "$RELEASE_DIR/$BASENAME"
+
+    # Fix install name so the app finds it at @rpath
+    if [[ "$BASENAME" == *.dylib ]]; then
+        install_name_tool -id "@rpath/$BASENAME" "$RELEASE_DIR/$BASENAME" 2>/dev/null || true
+    fi
 else
-    echo "warning: libonnxruntime.a not found in build output"
+    echo "warning: No ONNX Runtime library found in build output."
+    echo "  The build may fail with undefined httplib/onnxruntime symbols."
+    echo "  Build dir searched: $BUILD_DIR"
 fi
