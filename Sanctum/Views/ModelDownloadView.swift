@@ -156,7 +156,7 @@ struct ModelTierRow: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(isSelected
                           ? Color.accentColor.opacity(0.1)
-                          : Color(NSColor.controlBackgroundColor))
+                          : Color(nsColor: .controlBackgroundColor))
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
                             .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 1.5)

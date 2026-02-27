@@ -4,6 +4,8 @@ import Combine
 /// Central observable state for the app.
 @MainActor
 class AppState: ObservableObject {
+    nonisolated let objectWillChange = ObservableObjectPublisher()
+
     @Published var documents: [SanctumDocument] = []
     @Published var messages: [ChatMessage] = []
     @Published var isProcessing: Bool = false

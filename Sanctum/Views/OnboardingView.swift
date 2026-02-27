@@ -53,7 +53,7 @@ struct OnboardingView: View {
             .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 }
 
