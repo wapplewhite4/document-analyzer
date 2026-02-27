@@ -20,6 +20,12 @@ if ! command -v cmake &> /dev/null; then
     exit 1
 fi
 
+# Use cmake wrapper that injects -DLLAMA_HTTPLIB=OFF to prevent
+# llama.cpp's common library from compiling cpp-httplib download code.
+# Without this, the build produces undefined httplib::Client symbols.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export CMAKE="$SCRIPT_DIR/cmake-wrapper.sh"
+
 # Build release static library for Apple Silicon.
 # Default feature "llm" enables llama.cpp inference.
 # Add --features ml to also enable neural embeddings (requires ONNX Runtime).
