@@ -1,0 +1,12 @@
+# Rust build artifacts
+sanctum-core/target/
+target/
+
+# macOS
+.DS_Store
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
