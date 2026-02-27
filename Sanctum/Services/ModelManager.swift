@@ -5,7 +5,7 @@ import Foundation
 /// Models are stored in ~/Library/Application Support/Sanctum/models/
 /// (or inside the app container for sandboxed App Store builds).
 @MainActor
-class ModelManager: ObservableObject {
+class ModelManager {
     static let shared = ModelManager()
 
     private var modelsDirectory: URL {
