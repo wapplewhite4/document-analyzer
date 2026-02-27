@@ -21,28 +21,25 @@ if ! command -v cmake &> /dev/null; then
 fi
 
 TARGET="aarch64-apple-darwin"
+RELEASE_DIR="target/$TARGET/release"
+BUILD_DIR="$RELEASE_DIR/build"
 
 # Build the static library
 cargo build --release --target "$TARGET"
 
 # ---------------------------------------------------------------------------
-# Merge native C/C++ static libraries into libsanctum_core.a
+# Copy ONNX Runtime static library to a stable path for Xcode linking.
 #
-# Cargo's "staticlib" crate-type bundles all *Rust* code into one .a, but
-# native C/C++ libraries produced by build scripts (ort-sys → ONNX Runtime,
-# llama-cpp-sys → llama.cpp) are left as separate .a files in the build dir.
-# Xcode only links libsanctum_core.a, so we merge everything into it.
+# Cargo's staticlib bundles Rust code and llama.cpp (compiled by
+# llama-cpp-sys's build script). But ONNX Runtime (downloaded by ort-sys)
+# is a separate pre-built .a that cargo doesn't merge into our staticlib.
+# We copy it to a predictable path so Xcode can link it alongside ours.
 # ---------------------------------------------------------------------------
-SANCTUM_LIB="target/$TARGET/release/libsanctum_core.a"
-BUILD_DIR="target/$TARGET/release/build"
+ORT_LIB=$(find "$BUILD_DIR" -name "libonnxruntime.a" -path "*/out/*" 2>/dev/null | head -1)
 
-# Collect all native .a files produced by build scripts (in their out/ dirs)
-NATIVE_LIBS=$(find "$BUILD_DIR" -name "*.a" -path "*/out/*" 2>/dev/null || true)
-
-if [ -n "$NATIVE_LIBS" ]; then
-    echo "Merging native static libraries into libsanctum_core.a:"
-    echo "$NATIVE_LIBS" | sed 's/^/  /'
-    libtool -static -o "${SANCTUM_LIB}.merged" "$SANCTUM_LIB" $NATIVE_LIBS
-    mv "${SANCTUM_LIB}.merged" "$SANCTUM_LIB"
-    echo "Merge complete."
+if [ -n "$ORT_LIB" ]; then
+    echo "Copying ONNX Runtime library for Xcode: $ORT_LIB"
+    cp "$ORT_LIB" "$RELEASE_DIR/libonnxruntime.a"
+else
+    echo "warning: libonnxruntime.a not found in build output"
 fi
