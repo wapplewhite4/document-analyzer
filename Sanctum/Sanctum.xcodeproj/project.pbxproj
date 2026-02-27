@@ -17,7 +17,7 @@
 		BE09A8652F522EC2008FFD7B /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8572F522EC2008FFD7B /* ChatView.swift */; };
 		BE09A8662F522EC2008FFD7B /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8552F522EC2008FFD7B /* ModelManager.swift */; };
 		BE09A8682F522EC2008FFD7B /* DropZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8582F522EC2008FFD7B /* DropZoneView.swift */; };
-		BE09A86C2F522FCE008FFD7B /* libsanctum_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86B2F522FCE008FFD7B /* libsanctum_core.a */; };
+
 		BE09A86E2F522FEF008FFD7B /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86D2F522FEF008FFD7B /* Metal.framework */; };
 		BE09A8702F523023008FFD7B /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86F2F523023008FFD7B /* MetalKit.framework */; };
 		BE09A8722F52302C008FFD7B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A8712F52302C008FFD7B /* Accelerate.framework */; };
@@ -92,7 +92,6 @@
 				BE09A8722F52302C008FFD7B /* Accelerate.framework in Frameworks */,
 				BE09A8702F523023008FFD7B /* MetalKit.framework in Frameworks */,
 				BE09A86E2F522FEF008FFD7B /* Metal.framework in Frameworks */,
-				BE09A86C2F522FCE008FFD7B /* libsanctum_core.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,7 +507,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release";
+
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = "-force_load $(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a";
 				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
@@ -544,7 +543,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release";
+
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = "-force_load $(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a";
 				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
