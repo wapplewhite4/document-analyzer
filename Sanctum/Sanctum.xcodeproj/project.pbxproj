@@ -191,6 +191,7 @@
 				BE09A8212F522E20008FFD7B /* Sources */,
 				BE09A8222F522E20008FFD7B /* Frameworks */,
 				BE09A8232F522E20008FFD7B /* Resources */,
+				BE09A8782F523200008FFD7B /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -355,6 +356,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		BE09A8782F523200008FFD7B /* Embed Libraries */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Libraries";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PROJECT_DIR/../scripts/embed-libs.sh\"\n";
+		};
 		BE09A8772F523100008FFD7B /* Build Rust Library */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -532,10 +547,11 @@
 				);
 
 				MARKETING_VERSION = 1.0;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release";
 				OTHER_LDFLAGS = (
 					"-force_load",
 					"$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a",
-					"$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libonnxruntime.a",
+					"-lonnxruntime",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -573,10 +589,11 @@
 				);
 
 				MARKETING_VERSION = 1.0;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release";
 				OTHER_LDFLAGS = (
 					"-force_load",
 					"$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a",
-					"$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libonnxruntime.a",
+					"-lonnxruntime",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
 				PRODUCT_NAME = "$(TARGET_NAME)";
