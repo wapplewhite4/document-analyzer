@@ -24,13 +24,43 @@ class DocumentService {
         self.appState = appState
     }
 
+    /// Add a document to the library and make it active.
+    /// Setting activeDocument triggers its didSet which calls loadDocument.
+    func addDocument(url: URL) {
+        guard let appState else { return }
+
+        let fileSize: Int64 = {
+            let values = try? url.resourceValues(forKeys: [.fileSizeKey])
+            return Int64(values?.fileSize ?? 0)
+        }()
+
+        let doc = SanctumDocument(
+            id: UUID(),
+            name: url.lastPathComponent,
+            path: url.path,
+            fileSize: fileSize,
+            dateAdded: Date()
+        )
+
+        if !appState.documents.contains(where: { $0.path == url.path }) {
+            appState.documents.insert(doc, at: 0)
+        }
+
+        appState.activeDocument = doc
+    }
+
+    /// Load a document via FFI. Called by activeDocument.didSet.
     func loadDocument(url: URL) async {
         guard let appState else { return }
 
-        appState.isProcessing = true
-        appState.messages = []
-
         let modelPath = ModelManager.shared.modelPath(for: appState.selectedModel)
+        guard FileManager.default.fileExists(atPath: modelPath) else {
+            appState.isModelReady = false
+            return
+        }
+
+        appState.isProcessing = true
+
         let docPath = url.path
 
         let result = await Task.detached(priority: .userInitiated) {
@@ -41,27 +71,6 @@ class DocumentService {
         }.value
 
         if result == 0 {
-            let fileSize: Int64 = {
-                let values = try? url.resourceValues(forKeys: [.fileSizeKey])
-                return Int64(values?.fileSize ?? 0)
-            }()
-
-            let doc = SanctumDocument(
-                id: UUID(),
-                name: url.lastPathComponent,
-                path: url.path,
-                fileSize: fileSize,
-                dateAdded: Date()
-            )
-
-            if !appState.documents.contains(where: { $0.path == url.path }) {
-                appState.documents.insert(doc, at: 0)
-            }
-
-            if appState.activeDocument?.path != url.path {
-                appState.activeDocument = doc
-            }
-
             appState.messages.append(ChatMessage(
                 id: UUID(),
                 role: .assistant,

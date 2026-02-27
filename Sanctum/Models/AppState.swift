@@ -8,13 +8,18 @@ class AppState {
     var messages: [ChatMessage] = []
     var isProcessing: Bool = false
     var modelDownloadProgress: Double = 0
-    var selectedModel: ModelTier = .fast
+    var selectedModel: ModelTier = .fast {
+        didSet {
+            isModelReady = ModelManager.shared.isModelDownloaded(selectedModel)
+        }
+    }
     var isModelReady: Bool = false
     var onboardingComplete: Bool = false
 
     var activeDocument: SanctumDocument? {
         didSet {
-            guard let doc = activeDocument else { return }
+            guard let doc = activeDocument,
+                  oldValue?.path != doc.path else { return }
             messages = []
             Task {
                 await DocumentService.shared.loadDocument(

@@ -54,7 +54,7 @@ struct MainAppView: View {
         panel.allowedContentTypes = [.pdf, .plainText]
         panel.allowsMultipleSelection = false
         if panel.runModal() == .OK, let url = panel.url {
-            Task { await DocumentService.shared.loadDocument(url: url) }
+            DocumentService.shared.addDocument(url: url)
         }
     }
 }

@@ -52,9 +52,11 @@ struct ModelStatusBar: View {
     var body: some View {
         HStack(spacing: 6) {
             Circle()
-                .fill(Color.green)
+                .fill(appState.isModelReady ? Color.green : Color.orange)
                 .frame(width: 6, height: 6)
-            Text("\(appState.selectedModel.displayName) model active")
+            Text(appState.isModelReady
+                 ? "\(appState.selectedModel.displayName) model active"
+                 : "No model ready")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
