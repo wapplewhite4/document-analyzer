@@ -1,0 +1,681 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BE09A85E2F522EC2008FFD7B /* ModelDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A85A2F522EC2008FFD7B /* ModelDownloadView.swift */; };
+		BE09A85F2F522EC2008FFD7B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A85C2F522EC2008FFD7B /* SettingsView.swift */; };
+		BE09A8602F522EC2008FFD7B /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8592F522EC2008FFD7B /* LibraryView.swift */; };
+		BE09A8612F522EC2008FFD7B /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8502F522EC2008FFD7B /* AppState.swift */; };
+		BE09A8622F522EC2008FFD7B /* BridgeTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8532F522EC2008FFD7B /* BridgeTypes.swift */; };
+		BE09A8632F522EC2008FFD7B /* DocumentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8542F522EC2008FFD7B /* DocumentService.swift */; };
+		BE09A8642F522EC2008FFD7B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A85B2F522EC2008FFD7B /* OnboardingView.swift */; };
+		BE09A8652F522EC2008FFD7B /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8572F522EC2008FFD7B /* ChatView.swift */; };
+		BE09A8662F522EC2008FFD7B /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8552F522EC2008FFD7B /* ModelManager.swift */; };
+		BE09A8682F522EC2008FFD7B /* DropZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8582F522EC2008FFD7B /* DropZoneView.swift */; };
+		BE09A86C2F522FCE008FFD7B /* libsanctum_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86B2F522FCE008FFD7B /* libsanctum_core.a */; };
+		BE09A86E2F522FEF008FFD7B /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86D2F522FEF008FFD7B /* Metal.framework */; };
+		BE09A8702F523023008FFD7B /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86F2F523023008FFD7B /* MetalKit.framework */; };
+		BE09A8722F52302C008FFD7B /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A8712F52302C008FFD7B /* Accelerate.framework */; };
+		BE09A8742F523036008FFD7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A8732F523036008FFD7B /* Foundation.framework */; };
+		BE09A8762F523043008FFD7B /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A8752F523043008FFD7B /* libc++.tbd */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BE09A8332F522E22008FFD7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE09A81D2F522E20008FFD7B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BE09A8242F522E20008FFD7B;
+			remoteInfo = Sanctum;
+		};
+		BE09A83D2F522E22008FFD7B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE09A81D2F522E20008FFD7B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BE09A8242F522E20008FFD7B;
+			remoteInfo = Sanctum;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BE09A8252F522E20008FFD7B /* Sanctum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sanctum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE09A8322F522E22008FFD7B /* SanctumTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SanctumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE09A83C2F522E22008FFD7B /* SanctumUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SanctumUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE09A8502F522EC2008FFD7B /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		BE09A8532F522EC2008FFD7B /* BridgeTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeTypes.swift; sourceTree = "<group>"; };
+		BE09A8542F522EC2008FFD7B /* DocumentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentService.swift; sourceTree = "<group>"; };
+		BE09A8552F522EC2008FFD7B /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
+		BE09A8572F522EC2008FFD7B /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		BE09A8582F522EC2008FFD7B /* DropZoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneView.swift; sourceTree = "<group>"; };
+		BE09A8592F522EC2008FFD7B /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		BE09A85A2F522EC2008FFD7B /* ModelDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDownloadView.swift; sourceTree = "<group>"; };
+		BE09A85B2F522EC2008FFD7B /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		BE09A85C2F522EC2008FFD7B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BE09A86B2F522FCE008FFD7B /* libsanctum_core.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsanctum_core.a; path = "../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a"; sourceTree = "<group>"; };
+		BE09A86D2F522FEF008FFD7B /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		BE09A86F2F523023008FFD7B /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		BE09A8712F52302C008FFD7B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		BE09A8732F523036008FFD7B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		BE09A8752F523043008FFD7B /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BE09A8272F522E20008FFD7B /* Sanctum */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Sanctum;
+			sourceTree = "<group>";
+		};
+		BE09A8352F522E22008FFD7B /* SanctumTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SanctumTests;
+			sourceTree = "<group>";
+		};
+		BE09A83F2F522E22008FFD7B /* SanctumUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SanctumUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BE09A8222F522E20008FFD7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE09A8762F523043008FFD7B /* libc++.tbd in Frameworks */,
+				BE09A8742F523036008FFD7B /* Foundation.framework in Frameworks */,
+				BE09A8722F52302C008FFD7B /* Accelerate.framework in Frameworks */,
+				BE09A8702F523023008FFD7B /* MetalKit.framework in Frameworks */,
+				BE09A86E2F522FEF008FFD7B /* Metal.framework in Frameworks */,
+				BE09A86C2F522FCE008FFD7B /* libsanctum_core.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A82F2F522E22008FFD7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A8392F522E22008FFD7B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BE09A81C2F522E20008FFD7B = {
+			isa = PBXGroup;
+			children = (
+				BE09A8272F522E20008FFD7B /* Sanctum */,
+				BE09A8352F522E22008FFD7B /* SanctumTests */,
+				BE09A83F2F522E22008FFD7B /* SanctumUITests */,
+				BE09A8262F522E20008FFD7B /* Products */,
+				BE09A8512F522EC2008FFD7B /* Models */,
+				BE09A8562F522EC2008FFD7B /* Services */,
+				BE09A85D2F522EC2008FFD7B /* Views */,
+				BE09A86A2F522FCD008FFD7B /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		BE09A8262F522E20008FFD7B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE09A8252F522E20008FFD7B /* Sanctum.app */,
+				BE09A8322F522E22008FFD7B /* SanctumTests.xctest */,
+				BE09A83C2F522E22008FFD7B /* SanctumUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BE09A8512F522EC2008FFD7B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BE09A8502F522EC2008FFD7B /* AppState.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		BE09A8562F522EC2008FFD7B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BE09A8532F522EC2008FFD7B /* BridgeTypes.swift */,
+				BE09A8542F522EC2008FFD7B /* DocumentService.swift */,
+				BE09A8552F522EC2008FFD7B /* ModelManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		BE09A85D2F522EC2008FFD7B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BE09A8572F522EC2008FFD7B /* ChatView.swift */,
+				BE09A8582F522EC2008FFD7B /* DropZoneView.swift */,
+				BE09A8592F522EC2008FFD7B /* LibraryView.swift */,
+				BE09A85A2F522EC2008FFD7B /* ModelDownloadView.swift */,
+				BE09A85B2F522EC2008FFD7B /* OnboardingView.swift */,
+				BE09A85C2F522EC2008FFD7B /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BE09A86A2F522FCD008FFD7B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE09A8752F523043008FFD7B /* libc++.tbd */,
+				BE09A8732F523036008FFD7B /* Foundation.framework */,
+				BE09A8712F52302C008FFD7B /* Accelerate.framework */,
+				BE09A86F2F523023008FFD7B /* MetalKit.framework */,
+				BE09A86D2F522FEF008FFD7B /* Metal.framework */,
+				BE09A86B2F522FCE008FFD7B /* libsanctum_core.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BE09A8242F522E20008FFD7B /* Sanctum */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE09A8462F522E22008FFD7B /* Build configuration list for PBXNativeTarget "Sanctum" */;
+			buildPhases = (
+				BE09A8212F522E20008FFD7B /* Sources */,
+				BE09A8222F522E20008FFD7B /* Frameworks */,
+				BE09A8232F522E20008FFD7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BE09A8272F522E20008FFD7B /* Sanctum */,
+			);
+			name = Sanctum;
+			packageProductDependencies = (
+			);
+			productName = Sanctum;
+			productReference = BE09A8252F522E20008FFD7B /* Sanctum.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BE09A8312F522E22008FFD7B /* SanctumTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE09A8492F522E22008FFD7B /* Build configuration list for PBXNativeTarget "SanctumTests" */;
+			buildPhases = (
+				BE09A82E2F522E22008FFD7B /* Sources */,
+				BE09A82F2F522E22008FFD7B /* Frameworks */,
+				BE09A8302F522E22008FFD7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BE09A8342F522E22008FFD7B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BE09A8352F522E22008FFD7B /* SanctumTests */,
+			);
+			name = SanctumTests;
+			packageProductDependencies = (
+			);
+			productName = SanctumTests;
+			productReference = BE09A8322F522E22008FFD7B /* SanctumTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BE09A83B2F522E22008FFD7B /* SanctumUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BE09A84C2F522E22008FFD7B /* Build configuration list for PBXNativeTarget "SanctumUITests" */;
+			buildPhases = (
+				BE09A8382F522E22008FFD7B /* Sources */,
+				BE09A8392F522E22008FFD7B /* Frameworks */,
+				BE09A83A2F522E22008FFD7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BE09A83E2F522E22008FFD7B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BE09A83F2F522E22008FFD7B /* SanctumUITests */,
+			);
+			name = SanctumUITests;
+			packageProductDependencies = (
+			);
+			productName = SanctumUITests;
+			productReference = BE09A83C2F522E22008FFD7B /* SanctumUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BE09A81D2F522E20008FFD7B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					BE09A8242F522E20008FFD7B = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					BE09A8312F522E22008FFD7B = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = BE09A8242F522E20008FFD7B;
+					};
+					BE09A83B2F522E22008FFD7B = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = BE09A8242F522E20008FFD7B;
+					};
+				};
+			};
+			buildConfigurationList = BE09A8202F522E20008FFD7B /* Build configuration list for PBXProject "Sanctum" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BE09A81C2F522E20008FFD7B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BE09A8262F522E20008FFD7B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BE09A8242F522E20008FFD7B /* Sanctum */,
+				BE09A8312F522E22008FFD7B /* SanctumTests */,
+				BE09A83B2F522E22008FFD7B /* SanctumUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BE09A8232F522E20008FFD7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A8302F522E22008FFD7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A83A2F522E22008FFD7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BE09A8212F522E20008FFD7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE09A85E2F522EC2008FFD7B /* ModelDownloadView.swift in Sources */,
+				BE09A85F2F522EC2008FFD7B /* SettingsView.swift in Sources */,
+				BE09A8602F522EC2008FFD7B /* LibraryView.swift in Sources */,
+				BE09A8612F522EC2008FFD7B /* AppState.swift in Sources */,
+				BE09A8622F522EC2008FFD7B /* BridgeTypes.swift in Sources */,
+				BE09A8632F522EC2008FFD7B /* DocumentService.swift in Sources */,
+				BE09A8642F522EC2008FFD7B /* OnboardingView.swift in Sources */,
+				BE09A8652F522EC2008FFD7B /* ChatView.swift in Sources */,
+				BE09A8662F522EC2008FFD7B /* ModelManager.swift in Sources */,
+				BE09A8682F522EC2008FFD7B /* DropZoneView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A82E2F522E22008FFD7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE09A8382F522E22008FFD7B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BE09A8342F522E22008FFD7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BE09A8242F522E20008FFD7B /* Sanctum */;
+			targetProxy = BE09A8332F522E22008FFD7B /* PBXContainerItemProxy */;
+		};
+		BE09A83E2F522E22008FFD7B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BE09A8242F522E20008FFD7B /* Sanctum */;
+			targetProxy = BE09A83D2F522E22008FFD7B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BE09A8442F522E22008FFD7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BE09A8452F522E22008FFD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		BE09A8472F522E22008FFD7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BE09A8482F522E22008FFD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"HEADER_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../sanctum-bridge\n";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release";
+				MARKETING_VERSION = 1.0;
+				"OTHER_LDFLAGS[arch=*]" = "-lsanctum_core";
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.Sanctum;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "$(PROJECT_DIR)/../sanctum-bridge/Sanctum-Bridging-Header.h\n";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BE09A84A2F522E22008FFD7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.SanctumTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sanctum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sanctum";
+			};
+			name = Debug;
+		};
+		BE09A84B2F522E22008FFD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.SanctumTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sanctum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sanctum";
+			};
+			name = Release;
+		};
+		BE09A84D2F522E22008FFD7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.SanctumUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Sanctum;
+			};
+			name = Debug;
+		};
+		BE09A84E2F522E22008FFD7B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A38QH2W7Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willapplewhite.SanctumUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Sanctum;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BE09A8202F522E20008FFD7B /* Build configuration list for PBXProject "Sanctum" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE09A8442F522E22008FFD7B /* Debug */,
+				BE09A8452F522E22008FFD7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BE09A8462F522E22008FFD7B /* Build configuration list for PBXNativeTarget "Sanctum" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE09A8472F522E22008FFD7B /* Debug */,
+				BE09A8482F522E22008FFD7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BE09A8492F522E22008FFD7B /* Build configuration list for PBXNativeTarget "SanctumTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE09A84A2F522E22008FFD7B /* Debug */,
+				BE09A84B2F522E22008FFD7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BE09A84C2F522E22008FFD7B /* Build configuration list for PBXNativeTarget "SanctumUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE09A84D2F522E22008FFD7B /* Debug */,
+				BE09A84E2F522E22008FFD7B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BE09A81D2F522E20008FFD7B /* Project object */;
+}
