@@ -103,8 +103,13 @@ enum ModelTier: String, CaseIterable {
     }
 
     var downloadURL: String {
-        // Host on own CDN or Hugging Face
-        let base = "https://your-cdn.com/models"
-        return "\(base)/\(modelFilename)"
+        switch self {
+        case .fast:
+            return "https://huggingface.co/bartowski/Meta-Llama-3.1-8B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf"
+        case .balanced:
+            return "https://huggingface.co/bartowski/Qwen2.5-14B-Instruct-GGUF/resolve/main/Qwen2.5-14B-Instruct-Q4_K_M.gguf"
+        case .thorough:
+            return "https://huggingface.co/bartowski/Qwen2.5-32B-Instruct-GGUF/resolve/main/Qwen2.5-32B-Instruct-Q4_K_M.gguf"
+        }
     }
 }
