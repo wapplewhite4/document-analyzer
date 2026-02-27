@@ -39,20 +39,22 @@ impl InferenceEngine {
 }
 
 /// Build a RAG prompt from question and context chunks.
+///
+/// Uses the Llama 3.1 Instruct chat template format. This also works
+/// reasonably with other models that follow a similar convention.
 pub fn build_rag_prompt(question: &str, context_chunks: &[&str]) -> String {
     let context = context_chunks.join("\n\n---\n\n");
 
     format!(
-        r#"<|system|>
-You are a precise document analysis assistant. Answer questions based only on the provided document excerpts. If the answer is not contained in the excerpts, say "I don't see that information in this document." Be concise and accurate. Never speculate beyond what the document says.
-</s>
-<|user|>
-Document excerpts:
-{context}
-
-Question: {question}
-</s>
-<|assistant|>"#
+        "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\
+You are a precise document analysis assistant. Answer questions based only on \
+the provided document excerpts. If the answer is not contained in the excerpts, \
+say \"I don't see that information in this document.\" Be concise and accurate. \
+Never speculate beyond what the document says.<|eot_id|>\
+<|start_header_id|>user<|end_header_id|>\n\n\
+Document excerpts:\n{context}\n\n\
+Question: {question}<|eot_id|>\
+<|start_header_id|>assistant<|end_header_id|>\n\n"
     )
 }
 

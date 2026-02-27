@@ -8,7 +8,7 @@ use anyhow::Result;
 
 #[cfg(feature = "ml")]
 use llama_cpp_2::{
-    context::params::LlamaContextParams,
+    context::{params::LlamaContextParams, LlamaContext},
     llama_backend::LlamaBackend,
     llama_batch::LlamaBatch,
     model::{params::LlamaModelParams, AddBos, LlamaModel},
@@ -17,6 +17,8 @@ use llama_cpp_2::{
 
 #[cfg(feature = "ml")]
 use std::num::NonZeroU32;
+#[cfg(feature = "ml")]
+use std::sync::Mutex;
 
 #[cfg(feature = "ml")]
 use crate::inference::engine::InferenceBackend;
@@ -25,8 +27,16 @@ use crate::inference::engine::InferenceBackend;
 pub struct LlamaCppBackend {
     model: LlamaModel,
     backend: LlamaBackend,
+    context: Mutex<Option<LlamaContext<'static>>>,
     context_size: u32,
 }
+
+// Safety: LlamaModel and LlamaBackend are thread-safe for read access.
+// The mutable LlamaContext is protected by a Mutex.
+#[cfg(feature = "ml")]
+unsafe impl Send for LlamaCppBackend {}
+#[cfg(feature = "ml")]
+unsafe impl Sync for LlamaCppBackend {}
 
 #[cfg(feature = "ml")]
 impl LlamaCppBackend {
@@ -42,21 +52,51 @@ impl LlamaCppBackend {
 
         let model = LlamaModel::load_from_file(&backend, model_path, &model_params)?;
 
-        Ok(Self {
+        let mut this = Self {
             model,
             backend,
-            context_size: 8192, // Conservative default; increase if RAM allows
-        })
+            context: Mutex::new(None),
+            context_size: 8192,
+        };
+
+        // Create the context eagerly so Metal init happens once at load time
+        this.ensure_context()?;
+
+        Ok(this)
     }
 
     /// Set the context window size (in tokens).
+    /// Must be called before the first generate() call, or call ensure_context() after.
     pub fn with_context_size(mut self, size: u32) -> Self {
         self.context_size = size;
+        // Invalidate existing context so it gets recreated with new size
+        *self.context.lock().unwrap() = None;
         self
     }
 
     pub fn context_window_tokens(&self) -> usize {
         self.context_size as usize
+    }
+
+    /// Create the LlamaContext if it doesn't exist yet.
+    /// This is where the expensive Metal pipeline compilation happens.
+    fn ensure_context(&self) -> Result<()> {
+        let mut ctx_guard = self.context.lock().unwrap();
+        if ctx_guard.is_none() {
+            let ctx_params = LlamaContextParams::default()
+                .with_n_ctx(NonZeroU32::new(self.context_size));
+
+            // Safety: We store model and backend in the same struct, so the
+            // context's lifetime references are valid for as long as Self lives.
+            // The Mutex ensures exclusive access to the context.
+            let ctx = unsafe {
+                std::mem::transmute::<LlamaContext<'_>, LlamaContext<'static>>(
+                    self.model.new_context(&self.backend, ctx_params)?
+                )
+            };
+            *ctx_guard = Some(ctx);
+        }
+        Ok(())
     }
 }
 
@@ -69,10 +109,12 @@ impl InferenceBackend for LlamaCppBackend {
     ) -> Result<String> {
         let n_batch: usize = 2048;
 
-        let ctx_params = LlamaContextParams::default()
-            .with_n_ctx(NonZeroU32::new(self.context_size));
+        self.ensure_context()?;
+        let mut ctx_guard = self.context.lock().unwrap();
+        let ctx = ctx_guard.as_mut().unwrap();
 
-        let mut ctx = self.model.new_context(&self.backend, ctx_params)?;
+        // Clear KV cache from previous generation
+        ctx.clear_kv_cache();
 
         // Tokenize prompt
         let tokens_list = self.model.str_to_token(prompt, AddBos::Always)?;
@@ -116,7 +158,7 @@ impl InferenceBackend for LlamaCppBackend {
 
         while n_cur < max_total {
             // Sample the next token
-            let new_token = sampler.sample(&ctx, batch.n_tokens() - 1);
+            let new_token = sampler.sample(ctx, batch.n_tokens() - 1);
             sampler.accept(new_token);
 
             // Check for end of generation
@@ -126,6 +168,18 @@ impl InferenceBackend for LlamaCppBackend {
 
             // Decode token to string and stream
             let token_str = self.model.token_to_piece(new_token, &mut decoder, true, None)?;
+
+            // Stop on end-of-turn markers before appending to response
+            if full_response.len() + token_str.len() > 0 {
+                let combined = format!("{}{}", full_response, token_str);
+                if combined.contains("<|eot_id|>")
+                    || combined.contains("<|end_of_text|>")
+                    || combined.ends_with("</s>")
+                {
+                    break;
+                }
+            }
+
             on_token(&token_str);
             full_response.push_str(&token_str);
 
