@@ -93,16 +93,12 @@ struct ModelDownloadView: View {
                     }
                 }
 
-                await MainActor.run {
-                    appState.selectedModel = selectedTier
-                    appState.isModelReady = true
-                    UserDefaults.standard.set(selectedTier.rawValue, forKey: "selectedModel")
-                }
+                appState.selectedModel = selectedTier
+                appState.isModelReady = true
+                UserDefaults.standard.set(selectedTier.rawValue, forKey: "selectedModel")
             } catch {
-                await MainActor.run {
-                    isDownloading = false
-                    downloadError = "Download failed: \(error.localizedDescription). Check your connection and try again."
-                }
+                isDownloading = false
+                downloadError = "Download failed: \(error.localizedDescription). Check your connection and try again."
             }
         }
     }
