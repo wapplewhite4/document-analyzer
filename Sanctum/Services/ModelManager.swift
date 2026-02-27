@@ -22,7 +22,20 @@ class ModelManager {
     }
 
     func isModelDownloaded(_ tier: ModelTier) -> Bool {
-        FileManager.default.fileExists(atPath: modelPath(for: tier))
+        let path = modelPath(for: tier)
+        guard FileManager.default.fileExists(atPath: path),
+              let attrs = try? FileManager.default.attributesOfItem(atPath: path),
+              let fileSize = attrs[.size] as? UInt64 else {
+            return false
+        }
+        // Require at least 90% of expected size to catch partial downloads
+        let expectedBytes = UInt64(tier.downloadSizeGB * 1_000_000_000)
+        return fileSize >= expectedBytes * 9 / 10
+    }
+
+    func deleteModel(_ tier: ModelTier) {
+        let path = modelPath(for: tier)
+        try? FileManager.default.removeItem(atPath: path)
     }
 
     /// Download a model with progress reporting.
