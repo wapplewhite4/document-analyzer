@@ -3,6 +3,11 @@
 //! Provides document extraction, text chunking, vector embeddings,
 //! and LLM inference orchestration via a C-compatible FFI layer
 //! for consumption by the Swift/SwiftUI macOS frontend.
+//!
+//! # Feature Flags
+//! - `ml` — Enables real ML backends (llama-cpp-2, fastembed). Requires
+//!   cmake, C++ compiler, and downloads model files on first use.
+//! - `stub` — Uses placeholder backends for testing without ML dependencies.
 
 pub mod chunker;
 pub mod document;
@@ -24,27 +29,72 @@ use crate::pipeline::DocumentPipeline;
 
 static PIPELINE: Mutex<Option<DocumentPipeline>> = Mutex::new(None);
 
-/// A simple embedder that produces basic bag-of-characters embeddings.
-/// This is a placeholder for Phase 1 — will be replaced by fastembed
-/// or another ONNX-based embedder when ML dependencies are integrated.
+// ---------------------------------------------------------------------------
+// Backend construction (feature-gated)
+// ---------------------------------------------------------------------------
+
+/// Create a pipeline using real ML backends (llama.cpp + fastembed).
+#[cfg(feature = "ml")]
+fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    use crate::embeddings::fastembed_backend::FastEmbedBackend;
+    use crate::inference::llama_backend::LlamaCppBackend;
+
+    let app_support = get_app_support_dir();
+    let embed_cache = format!("{}/embed_cache", app_support);
+
+    // Ensure cache directory exists
+    std::fs::create_dir_all(&embed_cache).ok();
+
+    let llama = LlamaCppBackend::load(model_path)?;
+    let context_window = llama.context_window_tokens();
+
+    let engine = InferenceEngine::new(Box::new(llama));
+    let embedder: Box<dyn Embedder> = Box::new(FastEmbedBackend::new(&embed_cache)?);
+
+    DocumentPipeline::new(doc_path, engine, embedder, context_window)
+}
+
+/// Create a pipeline using placeholder backends (no ML dependencies).
+#[cfg(not(feature = "ml"))]
+fn create_pipeline(doc_path: &str, _model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    let engine = InferenceEngine::new(Box::new(PlaceholderBackend));
+    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
+
+    // Default context window for Llama 3.1 8B: 128k tokens
+    DocumentPipeline::new(doc_path, engine, embedder, 128_000)
+}
+
+/// Get the application support directory path.
+fn get_app_support_dir() -> String {
+    if cfg!(target_os = "macos") {
+        let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+        format!("{}/Library/Application Support/Sanctum", home)
+    } else {
+        let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+        format!("{}/.local/share/sanctum", home)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Stub-only placeholder embedder
+// ---------------------------------------------------------------------------
+
+#[cfg(not(feature = "ml"))]
 struct SimpleEmbedder;
 
+#[cfg(not(feature = "ml"))]
 impl Embedder for SimpleEmbedder {
     fn embed_texts(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
         Ok(texts.iter().map(|t| simple_embed(t)).collect())
     }
 }
 
-/// Produce a simple 128-dimensional embedding from text.
-/// Uses character frequency as a basic feature vector.
-/// This is NOT suitable for production — it's a scaffold for testing
-/// the pipeline end-to-end before integrating a real embedding model.
+#[cfg(not(feature = "ml"))]
 fn simple_embed(text: &str) -> Vec<f32> {
     let mut features = vec![0.0f32; 128];
     for byte in text.bytes() {
         features[(byte as usize) % 128] += 1.0;
     }
-    // Normalize
     let norm: f32 = features.iter().map(|x| x * x).sum::<f32>().sqrt();
     if norm > 0.0 {
         for f in &mut features {
@@ -76,18 +126,9 @@ pub unsafe extern "C" fn sanctum_load_document(
     }
 
     let path = unsafe { CStr::from_ptr(path).to_string_lossy().into_owned() };
-    let _model_path = unsafe { CStr::from_ptr(model_path).to_string_lossy().into_owned() };
+    let model_path = unsafe { CStr::from_ptr(model_path).to_string_lossy().into_owned() };
 
-    // Phase 1: Use placeholder backend. In production, this will load
-    // the GGUF model from model_path via llama.cpp.
-    let backend = Box::new(PlaceholderBackend);
-    let engine = InferenceEngine::new(backend);
-    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
-
-    // Default context window for Llama 3.1 8B: 128k tokens
-    let context_window = 128_000;
-
-    match DocumentPipeline::new(&path, engine, embedder, context_window) {
+    match create_pipeline(&path, &model_path) {
         Ok(pipeline) => {
             *PIPELINE.lock().unwrap() = Some(pipeline);
             0
@@ -131,7 +172,10 @@ pub unsafe extern "C" fn sanctum_ask(
 
     let json = match result {
         Some(Ok(answer)) => {
-            let escaped_answer = answer.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n");
+            let escaped_answer = answer
+                .replace('\\', "\\\\")
+                .replace('"', "\\\"")
+                .replace('\n', "\\n");
             format!(r#"{{"answer":"{}","error":null}}"#, escaped_answer)
         }
         Some(Err(e)) => {
@@ -195,6 +239,25 @@ pub extern "C" fn sanctum_document_info() -> *mut c_char {
     };
 
     CString::new(json).unwrap().into_raw()
+}
+
+/// Check if the embedding model is cached and ready.
+/// Returns 1 if the model is ready, 0 if it needs to be downloaded.
+///
+/// On first document load, fastembed downloads nomic-embed-text (~137MB).
+/// Swift should check this and show a progress indicator if needed.
+#[no_mangle]
+pub extern "C" fn sanctum_is_embed_model_ready() -> i32 {
+    let app_support = get_app_support_dir();
+    let model_dir = std::path::Path::new(&app_support)
+        .join("embed_cache")
+        .join("Nomic-nomic-embed-text-v1.5");
+
+    if model_dir.exists() && model_dir.is_dir() {
+        1
+    } else {
+        0
+    }
 }
 
 // ---------------------------------------------------------------------------

@@ -58,4 +58,13 @@ void sanctum_clear_document(void);
  */
 char *sanctum_document_info(void);
 
+/**
+ * Check if the embedding model is cached and ready.
+ * Returns 1 if the model is ready, 0 if it needs to be downloaded.
+ *
+ * On first document load, fastembed downloads nomic-embed-text (~137MB).
+ * Swift should check this and show a progress indicator if needed.
+ */
+int32_t sanctum_is_embed_model_ready(void);
+
 #endif  /* SANCTUM_CORE_H */
