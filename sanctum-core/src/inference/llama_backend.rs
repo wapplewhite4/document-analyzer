@@ -52,7 +52,7 @@ impl LlamaCppBackend {
 
         let model = LlamaModel::load_from_file(&backend, model_path, &model_params)?;
 
-        let mut this = Self {
+        let this = Self {
             model,
             backend,
             context: Mutex::new(None),
@@ -117,7 +117,7 @@ impl InferenceBackend for LlamaCppBackend {
         ctx.clear_kv_cache();
 
         // Tokenize prompt
-        let tokens_list = self.model.str_to_token(prompt, AddBos::Always)?;
+        let tokens_list = self.model.str_to_token(prompt, AddBos::Never)?;
         let n_prompt = tokens_list.len();
 
         if n_prompt == 0 {

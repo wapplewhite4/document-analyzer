@@ -20,8 +20,11 @@ use std::os::raw::c_char;
 use std::sync::Mutex;
 
 use crate::embeddings::store::Embedder;
-use crate::inference::engine::{InferenceEngine, PlaceholderBackend};
+use crate::inference::engine::InferenceEngine;
 use crate::pipeline::DocumentPipeline;
+
+#[cfg(not(feature = "ml"))]
+use crate::inference::engine::PlaceholderBackend;
 
 // ---------------------------------------------------------------------------
 // Global pipeline instance (one active document at a time for MVP)
