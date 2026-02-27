@@ -2,12 +2,12 @@ import SwiftUI
 
 @main
 struct SanctumApp: App {
-    @StateObject private var appState = AppState()
+    @State private var appState = AppState()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(appState)
+                .environment(appState)
                 .onAppear {
                     DocumentService.shared.configure(appState: appState)
                 }
@@ -26,7 +26,7 @@ struct SanctumApp: App {
 
         Settings {
             SettingsView()
-                .environmentObject(appState)
+                .environment(appState)
         }
     }
 }

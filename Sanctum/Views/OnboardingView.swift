@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Shown on first launch only. Simple, fast, builds trust.
 struct OnboardingView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some View {
         VStack(spacing: 0) {

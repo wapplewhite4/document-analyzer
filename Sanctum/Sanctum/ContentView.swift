@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some View {
         Group {
@@ -19,7 +19,7 @@ struct ContentView: View {
 }
 
 struct MainAppView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some View {
         NavigationSplitView {

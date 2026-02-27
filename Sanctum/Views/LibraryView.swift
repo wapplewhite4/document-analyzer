@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some View {
+        @Bindable var appState = appState
         List(appState.documents, selection: $appState.activeDocument) { doc in
             DocumentRow(document: doc)
                 .tag(doc)
@@ -46,7 +47,7 @@ struct DocumentRow: View {
 }
 
 struct ModelStatusBar: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
 
     var body: some View {
         HStack(spacing: 6) {
