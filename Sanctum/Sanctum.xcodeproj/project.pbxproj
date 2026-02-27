@@ -187,6 +187,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BE09A8462F522E22008FFD7B /* Build configuration list for PBXNativeTarget "Sanctum" */;
 			buildPhases = (
+				BE09A8772F523100008FFD7B /* Build Rust Library */,
 				BE09A8212F522E20008FFD7B /* Sources */,
 				BE09A8222F522E20008FFD7B /* Frameworks */,
 				BE09A8232F522E20008FFD7B /* Resources */,
@@ -353,6 +354,27 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		BE09A8772F523100008FFD7B /* Build Rust Library */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/../sanctum-core/Cargo.toml",
+				"$(PROJECT_DIR)/../sanctum-core/src",
+			);
+			name = "Build Rust Library";
+			outputPaths = (
+				"$(PROJECT_DIR)/../sanctum-core/target/aarch64-apple-darwin/release/libsanctum_core.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PROJECT_DIR/../scripts/build-rust.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXTargetDependency section */
 		BE09A8342F522E22008FFD7B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -405,7 +427,7 @@
 				DEVELOPMENT_TEAM = 4A38QH2W7Q;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -469,7 +491,7 @@
 				DEVELOPMENT_TEAM = 4A38QH2W7Q;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
