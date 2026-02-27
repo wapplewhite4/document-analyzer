@@ -4,6 +4,7 @@ import Foundation
 ///
 /// Models are stored in ~/Library/Application Support/Sanctum/models/
 /// (or inside the app container for sandboxed App Store builds).
+@MainActor
 class ModelManager: ObservableObject {
     static let shared = ModelManager()
 
@@ -29,7 +30,7 @@ class ModelManager: ObservableObject {
     /// - Parameters:
     ///   - tier: The model tier to download.
     ///   - progress: Callback with (fraction 0-1, bytesDownloaded).
-    func downloadModel(_ tier: ModelTier, progress: @escaping (Double, Int64) -> Void) async throws {
+    func downloadModel(_ tier: ModelTier, progress: @escaping @Sendable (Double, Int64) -> Void) async throws {
         guard let url = URL(string: tier.downloadURL) else {
             throw URLError(.badURL)
         }
