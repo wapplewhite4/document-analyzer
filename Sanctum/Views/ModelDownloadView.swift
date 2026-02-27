@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Critical UX moment — handle the large model download gracefully.
 struct ModelDownloadView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
     @State private var selectedTier: ModelTier = .fast
     @State private var isDownloading = false
     @State private var downloadProgress: Double = 0

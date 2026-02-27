@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 
 struct ChatView: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
     @State private var inputText: String = ""
 
     var body: some View {

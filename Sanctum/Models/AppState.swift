@@ -1,20 +1,18 @@
 import SwiftUI
-import Combine
 
 /// Central observable state for the app.
+@Observable
 @MainActor
-class AppState: ObservableObject {
-    nonisolated let objectWillChange = ObservableObjectPublisher()
+class AppState {
+    var documents: [SanctumDocument] = []
+    var messages: [ChatMessage] = []
+    var isProcessing: Bool = false
+    var modelDownloadProgress: Double = 0
+    var selectedModel: ModelTier = .fast
+    var isModelReady: Bool = false
+    var onboardingComplete: Bool = false
 
-    @Published var documents: [SanctumDocument] = []
-    @Published var messages: [ChatMessage] = []
-    @Published var isProcessing: Bool = false
-    @Published var modelDownloadProgress: Double = 0
-    @Published var selectedModel: ModelTier = .fast
-    @Published var isModelReady: Bool = false
-    @Published var onboardingComplete: Bool = false
-
-    @Published var activeDocument: SanctumDocument? {
+    var activeDocument: SanctumDocument? {
         didSet {
             guard let doc = activeDocument else { return }
             messages = []
