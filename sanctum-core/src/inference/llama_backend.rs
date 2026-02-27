@@ -67,6 +67,8 @@ impl InferenceBackend for LlamaCppBackend {
         prompt: &str,
         on_token: &dyn Fn(&str),
     ) -> Result<String> {
+        let n_batch: usize = 2048;
+
         let ctx_params = LlamaContextParams::default()
             .with_n_ctx(NonZeroU32::new(self.context_size));
 
@@ -74,14 +76,30 @@ impl InferenceBackend for LlamaCppBackend {
 
         // Tokenize prompt
         let tokens_list = self.model.str_to_token(prompt, AddBos::Always)?;
+        let n_prompt = tokens_list.len();
 
-        // Feed all prompt tokens in a batch
-        let mut batch = LlamaBatch::new(tokens_list.len().max(512), 1);
-        let last_index = (tokens_list.len() - 1) as i32;
-        for (i, token) in (0_i32..).zip(tokens_list.into_iter()) {
-            batch.add(token, i, &[0], i == last_index)?;
+        if n_prompt == 0 {
+            anyhow::bail!("Prompt tokenized to zero tokens");
         }
-        ctx.decode(&mut batch)?;
+
+        // Feed prompt tokens in chunks of n_batch to avoid exceeding the
+        // batch size limit. Only the last token in the final chunk needs
+        // logits (is_last = true) for sampling.
+        let mut batch = LlamaBatch::new(n_batch, 1);
+        let mut n_processed: usize = 0;
+
+        while n_processed < n_prompt {
+            batch.clear();
+            let chunk_end = (n_processed + n_batch).min(n_prompt);
+
+            for i in n_processed..chunk_end {
+                let is_last = i == n_prompt - 1;
+                batch.add(tokens_list[i], i as i32, &[0], is_last)?;
+            }
+
+            ctx.decode(&mut batch)?;
+            n_processed = chunk_end;
+        }
 
         // Set up sampler: low temperature for factual document Q&A
         let mut sampler = LlamaSampler::chain_simple([
@@ -92,11 +110,11 @@ impl InferenceBackend for LlamaCppBackend {
 
         // Generate tokens
         let mut full_response = String::new();
-        let mut n_cur = batch.n_tokens();
-        let max_new_tokens: i32 = 1024;
+        let mut n_cur = n_prompt as i32;
+        let max_total: i32 = n_cur + 1024; // up to 1024 new tokens
         let mut decoder = encoding_rs::UTF_8.new_decoder();
 
-        while n_cur <= max_new_tokens {
+        while n_cur < max_total {
             // Sample the next token
             let new_token = sampler.sample(&ctx, batch.n_tokens() - 1);
             sampler.accept(new_token);
@@ -111,7 +129,7 @@ impl InferenceBackend for LlamaCppBackend {
             on_token(&token_str);
             full_response.push_str(&token_str);
 
-            // Prepare next batch
+            // Prepare next batch (single token)
             batch.clear();
             batch.add(new_token, n_cur, &[0], true)?;
             ctx.decode(&mut batch)?;
