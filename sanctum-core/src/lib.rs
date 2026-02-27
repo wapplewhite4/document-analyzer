@@ -5,8 +5,8 @@
 //! for consumption by the Swift/SwiftUI macOS frontend.
 //!
 //! # Feature Flags
-//! - `ml` — Enables real ML backends (llama-cpp-2, fastembed). Requires
-//!   cmake, C++ compiler, and downloads model files on first use.
+//! - `llm` — Enables LLM inference via llama.cpp. Requires cmake + C++ compiler.
+//! - `ml` — Enables `llm` + neural embeddings (fastembed/ONNX Runtime).
 //! - `stub` — Uses placeholder backends for testing without ML dependencies.
 
 pub mod chunker;
@@ -23,7 +23,7 @@ use crate::embeddings::store::Embedder;
 use crate::inference::engine::InferenceEngine;
 use crate::pipeline::DocumentPipeline;
 
-#[cfg(not(feature = "ml"))]
+#[cfg(not(feature = "llm"))]
 use crate::inference::engine::PlaceholderBackend;
 
 // ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@ static PIPELINE: Mutex<Option<DocumentPipeline>> = Mutex::new(None);
 // Backend construction (feature-gated)
 // ---------------------------------------------------------------------------
 
-/// Create a pipeline using real ML backends (llama.cpp + fastembed).
+/// Create a pipeline using llama.cpp + fastembed (full ML).
 #[cfg(feature = "ml")]
 fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentPipeline> {
     use crate::embeddings::fastembed_backend::FastEmbedBackend;
@@ -45,7 +45,6 @@ fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentP
     let app_support = get_app_support_dir();
     let embed_cache = format!("{}/embed_cache", app_support);
 
-    // Ensure cache directory exists
     std::fs::create_dir_all(&embed_cache).ok();
 
     let llama = LlamaCppBackend::load(model_path)?;
@@ -57,8 +56,22 @@ fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentP
     DocumentPipeline::new(doc_path, engine, embedder, context_window)
 }
 
+/// Create a pipeline using llama.cpp + simple embedder (no ONNX Runtime).
+#[cfg(all(feature = "llm", not(feature = "ml")))]
+fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    use crate::inference::llama_backend::LlamaCppBackend;
+
+    let llama = LlamaCppBackend::load(model_path)?;
+    let context_window = llama.context_window_tokens();
+
+    let engine = InferenceEngine::new(Box::new(llama));
+    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
+
+    DocumentPipeline::new(doc_path, engine, embedder, context_window)
+}
+
 /// Create a pipeline using placeholder backends (no ML dependencies).
-#[cfg(not(feature = "ml"))]
+#[cfg(not(feature = "llm"))]
 fn create_pipeline(doc_path: &str, _model_path: &str) -> anyhow::Result<DocumentPipeline> {
     let engine = InferenceEngine::new(Box::new(PlaceholderBackend));
     let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
@@ -79,7 +92,9 @@ fn get_app_support_dir() -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Stub-only placeholder embedder
+// Simple embedder — used when fastembed/ONNX Runtime is not available.
+// Uses character-frequency features. Works well enough for short documents
+// where full-context mode skips RAG anyway.
 // ---------------------------------------------------------------------------
 
 #[cfg(not(feature = "ml"))]

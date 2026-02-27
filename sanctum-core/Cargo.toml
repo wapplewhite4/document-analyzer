@@ -36,8 +36,9 @@ cbindgen = "0.27"
 # Feature flags: build with or without ML dependencies.
 # Use --no-default-features --features stub for fast iteration without ML.
 [features]
-default = ["ml"]
-ml = ["llama-cpp-2", "encoding_rs", "fastembed"]
+default = ["llm"]
+llm = ["llama-cpp-2", "encoding_rs"]
+ml = ["llm", "fastembed"]
 stub = []
 
 [[bin]]
