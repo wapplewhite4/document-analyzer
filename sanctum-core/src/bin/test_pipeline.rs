@@ -8,12 +8,17 @@
 
 use std::io::Write;
 
-use sanctum_core::embeddings::store::Embedder;
-use sanctum_core::inference::engine::{InferenceEngine, PlaceholderBackend};
 use sanctum_core::pipeline::DocumentPipeline;
 
+#[cfg(not(feature = "ml"))]
+use sanctum_core::embeddings::store::Embedder;
+#[cfg(not(feature = "ml"))]
+use sanctum_core::inference::engine::{InferenceEngine, PlaceholderBackend};
+
 /// Simple embedder for stub mode testing.
+#[cfg(not(feature = "ml"))]
 struct TestEmbedder;
+#[cfg(not(feature = "ml"))]
 impl Embedder for TestEmbedder {
     fn embed_texts(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
         Ok(texts
@@ -38,6 +43,8 @@ impl Embedder for TestEmbedder {
 #[cfg(feature = "ml")]
 fn create_pipeline(doc_path: &str, model_path: &str) -> anyhow::Result<DocumentPipeline> {
     use sanctum_core::embeddings::fastembed_backend::FastEmbedBackend;
+    use sanctum_core::embeddings::store::Embedder;
+    use sanctum_core::inference::engine::InferenceEngine;
     use sanctum_core::inference::llama_backend::LlamaCppBackend;
 
     let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
