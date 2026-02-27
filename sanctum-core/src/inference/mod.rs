@@ -1,4 +1,4 @@
 pub mod engine;
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 pub mod llama_backend;

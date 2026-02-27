@@ -3,10 +3,10 @@
 //! Requires the `ml` feature flag and a C++ compiler + cmake.
 //! On macOS with Apple Silicon, Metal GPU acceleration is used automatically.
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 use anyhow::Result;
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 use llama_cpp_2::{
     context::{params::LlamaContextParams, LlamaContext},
     llama_backend::LlamaBackend,
@@ -15,15 +15,15 @@ use llama_cpp_2::{
     sampling::LlamaSampler,
 };
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 use std::num::NonZeroU32;
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 use std::sync::Mutex;
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 use crate::inference::engine::InferenceBackend;
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 pub struct LlamaCppBackend {
     model: LlamaModel,
     backend: LlamaBackend,
@@ -33,12 +33,12 @@ pub struct LlamaCppBackend {
 
 // Safety: LlamaModel and LlamaBackend are thread-safe for read access.
 // The mutable LlamaContext is protected by a Mutex.
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 unsafe impl Send for LlamaCppBackend {}
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 unsafe impl Sync for LlamaCppBackend {}
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 impl LlamaCppBackend {
     /// Load a GGUF model from disk.
     ///
@@ -100,7 +100,7 @@ impl LlamaCppBackend {
     }
 }
 
-#[cfg(feature = "ml")]
+#[cfg(feature = "llm")]
 impl InferenceBackend for LlamaCppBackend {
     fn generate(
         &self,
