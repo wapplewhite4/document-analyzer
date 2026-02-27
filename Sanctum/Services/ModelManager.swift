@@ -27,9 +27,9 @@ class ModelManager {
 
     /// Download a model with progress reporting.
     ///
-    /// - Parameters:
-    ///   - tier: The model tier to download.
-    ///   - progress: Callback with (fraction 0-1, bytesDownloaded).
+    /// Uses URLSession.download() which writes directly to disk via the
+    /// system's optimized download path — orders of magnitude faster than
+    /// reading byte-by-byte through an async iterator.
     func downloadModel(_ tier: ModelTier, progress: @escaping @Sendable (Double, Int64) -> Void) async throws {
         guard let url = URL(string: tier.downloadURL) else {
             throw URLError(.badURL)
@@ -37,43 +37,37 @@ class ModelManager {
 
         let destination = modelsDirectory.appendingPathComponent(tier.modelFilename)
 
-        let (asyncBytes, response) = try await URLSession.shared.bytes(from: url)
-        let totalBytes = response.expectedContentLength
-
-        var downloadedBytes: Int64 = 0
-        var buffer = Data()
-
-        let outputStream = OutputStream(url: destination, append: false)!
-        outputStream.open()
-        defer { outputStream.close() }
-
-        for try await byte in asyncBytes {
-            buffer.append(byte)
-            downloadedBytes += 1
-
-            if buffer.count >= 1024 * 1024 { // Flush every 1MB
-                buffer.withUnsafeBytes { ptr in
-                    _ = outputStream.write(
-                        ptr.baseAddress!.assumingMemoryBound(to: UInt8.self),
-                        maxLength: buffer.count)
-                }
-                buffer.removeAll(keepingCapacity: true)
-
-                if totalBytes > 0 {
-                    progress(Double(downloadedBytes) / Double(totalBytes), downloadedBytes)
+        // Use a download task with progress observation
+        let (tempURL, _) = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<(URL, URLResponse), Error>) in
+            let task = URLSession.shared.downloadTask(with: url) { tempURL, response, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let tempURL, let response {
+                    continuation.resume(returning: (tempURL, response))
+                } else {
+                    continuation.resume(throwing: URLError(.unknown))
                 }
             }
-        }
 
-        // Flush remaining bytes
-        if !buffer.isEmpty {
-            buffer.withUnsafeBytes { ptr in
-                _ = outputStream.write(
-                    ptr.baseAddress!.assumingMemoryBound(to: UInt8.self),
-                    maxLength: buffer.count)
+            // Observe progress on a background timer
+            let observation = task.progress.observe(\.fractionCompleted) { taskProgress, _ in
+                let bytes = task.countOfBytesReceived
+                progress(taskProgress.fractionCompleted, bytes)
             }
+
+            // Store observation so it isn't deallocated
+            objc_setAssociatedObject(task, "progressObservation", observation, .OBJC_ASSOCIATION_RETAIN)
+
+            task.resume()
         }
 
-        progress(1.0, downloadedBytes)
+        // Move downloaded file to final destination
+        let fm = FileManager.default
+        if fm.fileExists(atPath: destination.path) {
+            try fm.removeItem(at: destination)
+        }
+        try fm.moveItem(at: tempURL, to: destination)
+
+        progress(1.0, Int64(try fm.attributesOfItem(atPath: destination.path)[.size] as? UInt64 ?? 0))
     }
 }
