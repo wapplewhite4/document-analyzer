@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "sanctum_core"
-crate-type = ["staticlib", "cdylib", "lib"]
+crate-type = ["staticlib", "lib"]
 
 [dependencies]
 # Document parsing
