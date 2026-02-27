@@ -27,19 +27,12 @@ struct DropZoneView: View {
                     .font(.callout)
             }
         }
-        .onDrop(of: [.pdf, .plainText, .fileURL], isTargeted: $isTargeted) { providers in
-            handleDrop(providers: providers)
+        .dropDestination(for: URL.self) { urls, _ in
+            guard let url = urls.first, url.isFileURL else { return false }
+            DocumentService.shared.addDocument(url: url)
+            return true
+        } isTargeted: { targeted in
+            isTargeted = targeted
         }
-    }
-
-    func handleDrop(providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first else { return false }
-        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, _ in
-            if let data = item as? Data,
-               let url = URL(dataRepresentation: data, relativeTo: nil) {
-                Task { await DocumentService.shared.loadDocument(url: url) }
-            }
-        }
-        return true
     }
 }

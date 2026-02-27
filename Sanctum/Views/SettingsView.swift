@@ -14,12 +14,15 @@ struct SettingsView: View {
             AboutTab()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
-        .frame(width: 480, height: 320)
+        .frame(width: 480, height: 360)
     }
 }
 
 struct ModelSettingsTab: View {
     @Environment(AppState.self) var appState
+    @State private var downloadingTier: ModelTier?
+    @State private var downloadProgress: Double = 0
+    @State private var downloadError: String?
 
     var body: some View {
         Form {
@@ -45,17 +48,59 @@ struct ModelSettingsTab: View {
                                 }
                                 .buttonStyle(.borderless)
                             }
+                        } else if downloadingTier == tier {
+                            HStack(spacing: 8) {
+                                ProgressView(value: downloadProgress)
+                                    .frame(width: 80)
+                                Text(String(format: "%.0f%%", downloadProgress * 100))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 36, alignment: .trailing)
+                            }
                         } else {
-                            Text("Not downloaded")
-                                .foregroundColor(.secondary)
-                                .font(.callout)
+                            Button("Download") {
+                                downloadModel(tier)
+                            }
+                            .buttonStyle(.borderless)
+                            .disabled(downloadingTier != nil)
                         }
                     }
+                }
+            }
+
+            if let error = downloadError {
+                Section {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.caption)
                 }
             }
         }
         .formStyle(.grouped)
         .padding()
+    }
+
+    func downloadModel(_ tier: ModelTier) {
+        downloadingTier = tier
+        downloadProgress = 0
+        downloadError = nil
+
+        Task {
+            do {
+                try await ModelManager.shared.downloadModel(tier) { progress, _ in
+                    Task { @MainActor in
+                        self.downloadProgress = progress
+                    }
+                }
+                downloadingTier = nil
+                appState.selectedModel = tier
+                appState.isModelReady = true
+                UserDefaults.standard.set(tier.rawValue, forKey: "selectedModel")
+            } catch {
+                downloadingTier = nil
+                downloadError = "Download failed: \(error.localizedDescription)"
+            }
+        }
     }
 }
 
