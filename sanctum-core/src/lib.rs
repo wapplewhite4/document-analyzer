@@ -1,0 +1,208 @@
+//! Sanctum Core — Rust library for local document analysis.
+//!
+//! Provides document extraction, text chunking, vector embeddings,
+//! and LLM inference orchestration via a C-compatible FFI layer
+//! for consumption by the Swift/SwiftUI macOS frontend.
+
+pub mod chunker;
+pub mod document;
+pub mod embeddings;
+pub mod inference;
+pub mod pipeline;
+
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
+use std::sync::Mutex;
+
+use crate::embeddings::store::Embedder;
+use crate::inference::engine::{InferenceEngine, PlaceholderBackend};
+use crate::pipeline::DocumentPipeline;
+
+// ---------------------------------------------------------------------------
+// Global pipeline instance (one active document at a time for MVP)
+// ---------------------------------------------------------------------------
+
+static PIPELINE: Mutex<Option<DocumentPipeline>> = Mutex::new(None);
+
+/// A simple embedder that produces basic bag-of-characters embeddings.
+/// This is a placeholder for Phase 1 — will be replaced by fastembed
+/// or another ONNX-based embedder when ML dependencies are integrated.
+struct SimpleEmbedder;
+
+impl Embedder for SimpleEmbedder {
+    fn embed_texts(&self, texts: &[&str]) -> anyhow::Result<Vec<Vec<f32>>> {
+        Ok(texts.iter().map(|t| simple_embed(t)).collect())
+    }
+}
+
+/// Produce a simple 128-dimensional embedding from text.
+/// Uses character frequency as a basic feature vector.
+/// This is NOT suitable for production — it's a scaffold for testing
+/// the pipeline end-to-end before integrating a real embedding model.
+fn simple_embed(text: &str) -> Vec<f32> {
+    let mut features = vec![0.0f32; 128];
+    for byte in text.bytes() {
+        features[(byte as usize) % 128] += 1.0;
+    }
+    // Normalize
+    let norm: f32 = features.iter().map(|x| x * x).sum::<f32>().sqrt();
+    if norm > 0.0 {
+        for f in &mut features {
+            *f /= norm;
+        }
+    }
+    features
+}
+
+// ---------------------------------------------------------------------------
+// FFI exports — C-compatible API for Swift to call into.
+//
+// All strings passed as null-terminated C strings.
+// Caller responsible for freeing returned strings via sanctum_free_string.
+// ---------------------------------------------------------------------------
+
+/// Load and index a document. Returns 0 on success, -1 on error.
+///
+/// # Safety
+/// `path` and `model_path` must be valid, null-terminated C strings.
+#[no_mangle]
+pub unsafe extern "C" fn sanctum_load_document(
+    path: *const c_char,
+    model_path: *const c_char,
+) -> i32 {
+    if path.is_null() || model_path.is_null() {
+        eprintln!("sanctum_load_document: null pointer argument");
+        return -1;
+    }
+
+    let path = unsafe { CStr::from_ptr(path).to_string_lossy().into_owned() };
+    let _model_path = unsafe { CStr::from_ptr(model_path).to_string_lossy().into_owned() };
+
+    // Phase 1: Use placeholder backend. In production, this will load
+    // the GGUF model from model_path via llama.cpp.
+    let backend = Box::new(PlaceholderBackend);
+    let engine = InferenceEngine::new(backend);
+    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
+
+    // Default context window for Llama 3.1 8B: 128k tokens
+    let context_window = 128_000;
+
+    match DocumentPipeline::new(&path, engine, embedder, context_window) {
+        Ok(pipeline) => {
+            *PIPELINE.lock().unwrap() = Some(pipeline);
+            0
+        }
+        Err(e) => {
+            eprintln!("Failed to load document: {}", e);
+            -1
+        }
+    }
+}
+
+/// Ask a question about the loaded document.
+/// Returns a JSON string: `{"answer": "...", "error": null}`
+///
+/// Caller must free the returned pointer with `sanctum_free_string`.
+///
+/// # Safety
+/// `question` must be a valid, null-terminated C string.
+/// `callback` may be null (no streaming) or a valid function pointer.
+#[no_mangle]
+pub unsafe extern "C" fn sanctum_ask(
+    question: *const c_char,
+    callback: Option<unsafe extern "C" fn(*const c_char)>,
+) -> *mut c_char {
+    if question.is_null() {
+        return error_json("Null question pointer");
+    }
+
+    let question = unsafe { CStr::from_ptr(question).to_string_lossy().into_owned() };
+
+    let result = PIPELINE.lock().unwrap();
+    let result = result.as_ref().map(|p| {
+        p.ask(&question, |token| {
+            if let Some(cb) = callback {
+                if let Ok(s) = CString::new(token) {
+                    unsafe { cb(s.as_ptr()) };
+                }
+            }
+        })
+    });
+
+    let json = match result {
+        Some(Ok(answer)) => {
+            let escaped_answer = answer.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n");
+            format!(r#"{{"answer":"{}","error":null}}"#, escaped_answer)
+        }
+        Some(Err(e)) => {
+            let escaped_error = e.to_string().replace('\\', "\\\\").replace('"', "\\\"");
+            format!(r#"{{"answer":null,"error":"{}"}}"#, escaped_error)
+        }
+        None => r#"{"answer":null,"error":"No document loaded"}"#.to_string(),
+    };
+
+    CString::new(json).unwrap().into_raw()
+}
+
+/// Free a string returned by sanctum functions.
+///
+/// # Safety
+/// `ptr` must be a pointer previously returned by a sanctum_* function,
+/// or null (in which case this is a no-op).
+#[no_mangle]
+pub unsafe extern "C" fn sanctum_free_string(ptr: *mut c_char) {
+    if !ptr.is_null() {
+        unsafe {
+            drop(CString::from_raw(ptr));
+        }
+    }
+}
+
+/// Check if a document is currently loaded. Returns 1 if yes, 0 if no.
+#[no_mangle]
+pub extern "C" fn sanctum_has_document() -> i32 {
+    if PIPELINE.lock().unwrap().is_some() {
+        1
+    } else {
+        0
+    }
+}
+
+/// Clear the current document from memory.
+/// Call this when a document is closed or the app is backgrounded
+/// to free RAM used by the loaded model and vector store.
+#[no_mangle]
+pub extern "C" fn sanctum_clear_document() {
+    *PIPELINE.lock().unwrap() = None;
+}
+
+/// Get information about the loaded document as a JSON string.
+/// Returns `{"loaded": true, "char_count": N, "chunk_count": N, "full_context": bool}`
+/// or `{"loaded": false}` if no document is loaded.
+///
+/// Caller must free the returned pointer with `sanctum_free_string`.
+#[no_mangle]
+pub extern "C" fn sanctum_document_info() -> *mut c_char {
+    let pipeline = PIPELINE.lock().unwrap();
+    let json = match pipeline.as_ref() {
+        Some(p) => format!(
+            r#"{{"loaded":true,"char_count":{},"chunk_count":{},"full_context":{}}}"#,
+            p.document_text().len(),
+            p.chunk_count(),
+            p.is_using_full_context(),
+        ),
+        None => r#"{"loaded":false}"#.to_string(),
+    };
+
+    CString::new(json).unwrap().into_raw()
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+fn error_json(msg: &str) -> *mut c_char {
+    let escaped = msg.replace('\\', "\\\\").replace('"', "\\\"");
+    let json = format!(r#"{{"answer":null,"error":"{}"}}"#, escaped);
+    CString::new(json).unwrap().into_raw()
+}
