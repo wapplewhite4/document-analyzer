@@ -30,8 +30,11 @@ struct ChatView: View {
                 }
                 .onChange(of: appState.messages.count) {
                     withAnimation {
-                        proxy.scrollTo(appState.messages.last?.id ?? "thinking",
-                                       anchor: .bottom)
+                        if let lastId = appState.messages.last?.id {
+                            proxy.scrollTo(lastId, anchor: .bottom)
+                        } else {
+                            proxy.scrollTo("thinking", anchor: .bottom)
+                        }
                     }
                 }
             }
@@ -56,7 +59,7 @@ struct ChatView: View {
                 .keyboardShortcut(.return, modifiers: .command)
             }
             .padding(12)
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(Color(nsColor: .controlBackgroundColor))
         }
     }
 
@@ -86,7 +89,7 @@ struct DocumentHeaderView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
     }
 }
 
@@ -109,7 +112,7 @@ struct MessageBubble: View {
                 .background(
                     message.role == .user
                     ? Color.accentColor.opacity(0.15)
-                    : Color(NSColor.controlBackgroundColor)
+                    : Color(nsColor: .controlBackgroundColor)
                 )
                 .cornerRadius(10)
 
