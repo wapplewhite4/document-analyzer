@@ -24,7 +24,7 @@ anyhow = "1.0"
 thiserror = "1.0"
 
 # LLM inference (optional, requires cmake + C++ compiler)
-llama-cpp-2 = { version = "0.1.79", optional = true, features = ["metal"] }
+llama-cpp-2 = { version = "0.1.79", optional = true, default-features = false, features = ["metal"] }
 encoding_rs = { version = "0.8", optional = true }
 
 # Text embeddings (optional, bundles ONNX runtime)
