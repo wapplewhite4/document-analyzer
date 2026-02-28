@@ -23,6 +23,7 @@ struct ModelSettingsTab: View {
     @State private var downloadingTier: ModelTier?
     @State private var downloadProgress: Double = 0
     @State private var downloadError: String?
+    @State private var tierToDelete: ModelTier?
 
     var body: some View {
         Form {
@@ -48,6 +49,13 @@ struct ModelSettingsTab: View {
                                 }
                                 .buttonStyle(.borderless)
                             }
+                            Button(role: .destructive) {
+                                tierToDelete = tier
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Delete \(tier.displayName) model (\(String(format: "%.1f", tier.downloadSizeGB)) GB)")
                         } else if downloadingTier == tier {
                             HStack(spacing: 8) {
                                 ProgressView(value: downloadProgress)
@@ -78,6 +86,25 @@ struct ModelSettingsTab: View {
         }
         .formStyle(.grouped)
         .padding()
+        .alert("Delete Model?", isPresented: Binding(
+            get: { tierToDelete != nil },
+            set: { if !$0 { tierToDelete = nil } }
+        )) {
+            Button("Cancel", role: .cancel) { tierToDelete = nil }
+            Button("Delete", role: .destructive) {
+                if let tier = tierToDelete {
+                    ModelManager.shared.deleteModel(tier)
+                    if appState.selectedModel == tier {
+                        appState.isModelReady = false
+                    }
+                    tierToDelete = nil
+                }
+            }
+        } message: {
+            if let tier = tierToDelete {
+                Text("This will delete the \(tier.displayName) model (\(String(format: "%.1f", tier.downloadSizeGB)) GB). You can re-download it later.")
+            }
+        }
     }
 
     func downloadModel(_ tier: ModelTier) {
