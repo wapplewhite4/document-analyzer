@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Vision
 import PDFKit
 
@@ -73,32 +73,22 @@ class OCRService {
     }
 
     /// Run Vision text recognition on a single CGImage.
+    /// Runs the synchronous Vision request off the main thread.
     private static func recognizeText(in image: CGImage) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
-            let request = VNRecognizeTextRequest { request, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-
-                let observations = request.results as? [VNRecognizedTextObservation] ?? []
-                let text = observations
-                    .compactMap { $0.topCandidates(1).first?.string }
-                    .joined(separator: "\n")
-
-                continuation.resume(returning: text)
-            }
-
+        let cgImage = image
+        return try await Task.detached {
+            let request = VNRecognizeTextRequest()
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
 
-            let handler = VNImageRequestHandler(cgImage: image)
-            do {
-                try handler.perform([request])
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
+            let handler = VNImageRequestHandler(cgImage: cgImage)
+            try handler.perform([request])
+
+            let observations = request.results as? [VNRecognizedTextObservation] ?? []
+            return observations
+                .compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: "\n")
+        }.value
     }
 
     enum OCRError: LocalizedError {
