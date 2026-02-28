@@ -16,11 +16,22 @@ class AppState {
     var isModelReady: Bool = false
     var onboardingComplete: Bool = false
 
+    /// Per-document chat history, keyed by file path.
+    private var chatHistories: [String: [ChatMessage]] = [:]
+
     var activeDocument: SanctumDocument? {
         didSet {
             guard let doc = activeDocument,
                   oldValue?.path != doc.path else { return }
-            messages = []
+
+            // Save current chat before switching
+            if let prev = oldValue {
+                chatHistories[prev.path] = messages
+            }
+
+            // Restore previous chat or start fresh
+            messages = chatHistories[doc.path] ?? []
+
             Task {
                 await DocumentService.shared.loadDocument(
                     url: URL(fileURLWithPath: doc.path))
