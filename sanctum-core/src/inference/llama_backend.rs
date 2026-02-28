@@ -18,15 +18,20 @@ use llama_cpp_2::{
 #[cfg(feature = "llm")]
 use std::num::NonZeroU32;
 #[cfg(feature = "llm")]
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 #[cfg(feature = "llm")]
 use crate::inference::engine::InferenceBackend;
 
+/// Global singleton for the llama.cpp backend.
+/// LlamaBackend::init() can only be called once per process;
+/// subsequent calls return BackendAlreadyInitialized.
+#[cfg(feature = "llm")]
+static LLAMA_BACKEND: OnceLock<LlamaBackend> = OnceLock::new();
+
 #[cfg(feature = "llm")]
 pub struct LlamaCppBackend {
     model: LlamaModel,
-    backend: LlamaBackend,
     context: Mutex<Option<LlamaContext<'static>>>,
     context_size: u32,
 }
@@ -45,14 +50,19 @@ impl LlamaCppBackend {
     /// `model_path` should point to a .gguf file (e.g. Q4_K_M quantized).
     /// On Apple Silicon, all layers are offloaded to Metal GPU automatically.
     pub fn load(model_path: &str) -> Result<Self> {
-        let backend = LlamaBackend::init()?;
+        // Initialize the backend singleton. LlamaBackend::init() can only
+        // succeed once per process; reuse the existing instance for
+        // subsequent document loads.
+        let backend = LLAMA_BACKEND.get_or_init(|| {
+            LlamaBackend::init().expect("failed to initialize llama backend")
+        });
 
         // On Apple Silicon the GPU shares system RAM, so offloading all
         // layers to Metal improves speed without extra memory cost.
         let model_params = LlamaModelParams::default()
             .with_n_gpu_layers(1000);
 
-        let model = LlamaModel::load_from_file(&backend, model_path, &model_params)?;
+        let model = LlamaModel::load_from_file(backend, model_path, &model_params)?;
 
         // Keep context size conservative to avoid OOM on 8 GB Macs.
         // KV-cache cost is roughly 128–256 KB per token depending on model.
@@ -61,7 +71,6 @@ impl LlamaCppBackend {
 
         let this = Self {
             model,
-            backend,
             context: Mutex::new(None),
             context_size,
         };
@@ -90,15 +99,18 @@ impl LlamaCppBackend {
     fn ensure_context(&self) -> Result<()> {
         let mut ctx_guard = self.context.lock().unwrap();
         if ctx_guard.is_none() {
+            let backend = LLAMA_BACKEND.get()
+                .ok_or_else(|| anyhow::anyhow!("llama backend not initialized"))?;
+
             let ctx_params = LlamaContextParams::default()
                 .with_n_ctx(NonZeroU32::new(self.context_size));
 
-            // Safety: We store model and backend in the same struct, so the
-            // context's lifetime references are valid for as long as Self lives.
-            // The Mutex ensures exclusive access to the context.
+            // Safety: The model lives in Self, and the backend lives in a
+            // static OnceLock — both outlive the context. The Mutex ensures
+            // exclusive access.
             let ctx = unsafe {
                 std::mem::transmute::<LlamaContext<'_>, LlamaContext<'static>>(
-                    self.model.new_context(&self.backend, ctx_params)?
+                    self.model.new_context(backend, ctx_params)?
                 )
             };
             *ctx_guard = Some(ctx);
