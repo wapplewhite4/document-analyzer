@@ -54,6 +54,35 @@ impl DocumentPipeline {
         })
     }
 
+    /// Create a pipeline from pre-extracted text (e.g. from OCR).
+    /// Skips file-based extraction entirely.
+    pub fn new_from_text(
+        text: String,
+        engine: InferenceEngine,
+        embedder: Box<dyn Embedder>,
+        context_window_tokens: usize,
+    ) -> Result<Self> {
+        if text.trim().is_empty() {
+            anyhow::bail!("Document appears to be empty or contains no extractable text.");
+        }
+
+        let use_full_context = should_use_full_context(&text, context_window_tokens);
+        let mut store = VectorStore::new();
+
+        if !use_full_context {
+            let chunks = chunk_text(&text, &ChunkConfig::default());
+            store.add_chunks(&chunks, embedder.as_ref())?;
+        }
+
+        Ok(Self {
+            full_text: text,
+            store,
+            engine,
+            embedder,
+            use_full_context,
+        })
+    }
+
     pub fn ask(&self, question: &str, on_token: impl Fn(&str)) -> Result<String> {
         let context_chunks: Vec<&str> = if self.use_full_context {
             // Pass entire document text as single context

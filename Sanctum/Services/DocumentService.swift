@@ -85,23 +85,66 @@ class DocumentService {
 
         appState.isProcessing = true
 
-        let result = await Task.detached(priority: .userInitiated) {
-            return sanctum_load_document(
-                docPath.cString(using: .utf8),
-                modelPath.cString(using: .utf8)
-            )
-        }.value
+        // For scanned PDFs, use Vision OCR on the Swift side, then pass
+        // the extracted text to Rust via sanctum_load_document_from_text.
+        let isPDF = docPath.lowercased().hasSuffix(".pdf")
+        let needsOCR = isPDF && OCRService.pdfNeedsOCR(url: url)
 
-        if hasScope { url.stopAccessingSecurityScopedResource() }
+        let result: Int32
+        if needsOCR {
+            appState.messages.append(ChatMessage(
+                id: UUID(),
+                role: .assistant,
+                content: "Scanned PDF detected — running OCR...",
+                timestamp: Date()
+            ))
+
+            do {
+                let ocrText = try await OCRService.ocrPDF(url: url)
+
+                if hasScope { url.stopAccessingSecurityScopedResource() }
+
+                result = await Task.detached(priority: .userInitiated) {
+                    return sanctum_load_document_from_text(
+                        ocrText.cString(using: .utf8),
+                        modelPath.cString(using: .utf8)
+                    )
+                }.value
+            } catch {
+                if hasScope { url.stopAccessingSecurityScopedResource() }
+
+                appState.messages.append(ChatMessage(
+                    id: UUID(),
+                    role: .assistant,
+                    content: "OCR failed: \(error.localizedDescription)",
+                    timestamp: Date()
+                ))
+                appState.isProcessing = false
+                return
+            }
+        } else {
+            result = await Task.detached(priority: .userInitiated) {
+                return sanctum_load_document(
+                    docPath.cString(using: .utf8),
+                    modelPath.cString(using: .utf8)
+                )
+            }.value
+
+            if hasScope { url.stopAccessingSecurityScopedResource() }
+        }
 
         if result == 0 {
             // Only show the greeting when this is a fresh document load,
             // not when switching back to a document with existing chat.
-            if appState.messages.isEmpty {
+            let hasOCRMessage = appState.messages.contains { $0.content.contains("running OCR") }
+            if appState.messages.isEmpty || hasOCRMessage {
+                let greeting = needsOCR
+                    ? "Document scanned and loaded via OCR. What would you like to know?"
+                    : "Document loaded. What would you like to know?"
                 appState.messages.append(ChatMessage(
                     id: UUID(),
                     role: .assistant,
-                    content: "Document loaded. What would you like to know?",
+                    content: greeting,
                     timestamp: Date()
                 ))
             }
