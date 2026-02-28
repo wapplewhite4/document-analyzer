@@ -80,6 +80,49 @@ fn create_pipeline(doc_path: &str, _model_path: &str) -> anyhow::Result<Document
     DocumentPipeline::new(doc_path, engine, embedder, 2048)
 }
 
+// ---------------------------------------------------------------------------
+// Pipeline from pre-extracted text (for OCR'd documents)
+// ---------------------------------------------------------------------------
+
+/// Create a pipeline from pre-extracted text using llama.cpp + fastembed.
+#[cfg(feature = "ml")]
+fn create_pipeline_from_text(text: String, model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    use crate::embeddings::fastembed_backend::FastEmbedBackend;
+    use crate::inference::llama_backend::LlamaCppBackend;
+
+    let app_support = get_app_support_dir();
+    let embed_cache = format!("{}/embed_cache", app_support);
+    std::fs::create_dir_all(&embed_cache).ok();
+
+    let llama = LlamaCppBackend::load(model_path)?;
+    let context_window = llama.context_window_tokens();
+    let engine = InferenceEngine::new(Box::new(llama));
+    let embedder: Box<dyn Embedder> = Box::new(FastEmbedBackend::new(&embed_cache)?);
+
+    DocumentPipeline::new_from_text(text, engine, embedder, context_window)
+}
+
+/// Create a pipeline from pre-extracted text using llama.cpp + simple embedder.
+#[cfg(all(feature = "llm", not(feature = "ml")))]
+fn create_pipeline_from_text(text: String, model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    use crate::inference::llama_backend::LlamaCppBackend;
+
+    let llama = LlamaCppBackend::load(model_path)?;
+    let context_window = llama.context_window_tokens();
+    let engine = InferenceEngine::new(Box::new(llama));
+    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
+
+    DocumentPipeline::new_from_text(text, engine, embedder, context_window)
+}
+
+/// Create a pipeline from pre-extracted text using placeholder backends.
+#[cfg(not(feature = "llm"))]
+fn create_pipeline_from_text(text: String, _model_path: &str) -> anyhow::Result<DocumentPipeline> {
+    let engine = InferenceEngine::new(Box::new(PlaceholderBackend));
+    let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
+    DocumentPipeline::new_from_text(text, engine, embedder, 2048)
+}
+
 /// Get the application support directory path.
 fn get_app_support_dir() -> String {
     if cfg!(target_os = "macos") {
@@ -166,6 +209,47 @@ pub unsafe extern "C" fn sanctum_load_document(
         }
         Err(e) => {
             eprintln!("sanctum_load_document: failed: {}", e);
+            -1
+        }
+    }
+}
+
+/// Load a document from pre-extracted text (e.g. OCR output).
+/// Returns 0 on success, -1 on error.
+///
+/// Use this when the Swift side has already extracted text (via Vision
+/// framework OCR) and wants to skip Rust-side file parsing.
+///
+/// # Safety
+/// `text` and `model_path` must be valid, null-terminated C strings.
+#[no_mangle]
+pub unsafe extern "C" fn sanctum_load_document_from_text(
+    text: *const c_char,
+    model_path: *const c_char,
+) -> i32 {
+    if text.is_null() || model_path.is_null() {
+        eprintln!("sanctum_load_document_from_text: null pointer argument");
+        return -1;
+    }
+
+    let text = unsafe { CStr::from_ptr(text).to_string_lossy().into_owned() };
+    let model_path = unsafe { CStr::from_ptr(model_path).to_string_lossy().into_owned() };
+
+    if !std::path::Path::new(&model_path).exists() {
+        eprintln!("sanctum_load_document_from_text: model not found: {}", model_path);
+        return -1;
+    }
+
+    eprintln!("sanctum_load_document_from_text: loading {} chars of pre-extracted text", text.len());
+
+    match create_pipeline_from_text(text, &model_path) {
+        Ok(pipeline) => {
+            eprintln!("sanctum_load_document_from_text: pipeline created successfully");
+            *PIPELINE.lock().unwrap() = Some(pipeline);
+            0
+        }
+        Err(e) => {
+            eprintln!("sanctum_load_document_from_text: failed: {}", e);
             -1
         }
     }

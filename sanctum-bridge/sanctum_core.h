@@ -17,6 +17,18 @@
 int32_t sanctum_load_document(const char *path, const char *model_path);
 
 /**
+ * Load a document from pre-extracted text (e.g. OCR output).
+ * Returns 0 on success, -1 on error.
+ *
+ * Use this when the Swift side has already extracted text (via Vision
+ * framework OCR) and wants to skip Rust-side file parsing.
+ *
+ * # Safety
+ * `text` and `model_path` must be valid, null-terminated C strings.
+ */
+int32_t sanctum_load_document_from_text(const char *text, const char *model_path);
+
+/**
  * Ask a question about the loaded document.
  * Returns a JSON string: `{"answer": "...", "error": null}`
  *

@@ -51,7 +51,11 @@ struct MainAppView: View {
 
     func openFilePicker() {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.pdf, .plainText]
+        panel.allowedContentTypes = [
+            .pdf,
+            .plainText,
+            UTType("org.openxmlformats.wordprocessingml.document") ?? .data
+        ]
         panel.allowsMultipleSelection = false
         if panel.runModal() == .OK, let url = panel.url {
             Task { await DocumentService.shared.loadDocument(url: url) }
