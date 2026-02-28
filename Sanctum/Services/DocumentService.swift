@@ -95,12 +95,16 @@ class DocumentService {
         if hasScope { url.stopAccessingSecurityScopedResource() }
 
         if result == 0 {
-            appState.messages.append(ChatMessage(
-                id: UUID(),
-                role: .assistant,
-                content: "Document loaded. What would you like to know?",
-                timestamp: Date()
-            ))
+            // Only show the greeting when this is a fresh document load,
+            // not when switching back to a document with existing chat.
+            if appState.messages.isEmpty {
+                appState.messages.append(ChatMessage(
+                    id: UUID(),
+                    role: .assistant,
+                    content: "Document loaded. What would you like to know?",
+                    timestamp: Date()
+                ))
+            }
         } else {
             appState.messages.append(ChatMessage(
                 id: UUID(),
