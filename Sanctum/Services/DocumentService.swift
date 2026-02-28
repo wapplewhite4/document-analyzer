@@ -56,12 +56,34 @@ class DocumentService {
         let modelPath = ModelManager.shared.modelPath(for: appState.selectedModel)
         guard FileManager.default.fileExists(atPath: modelPath) else {
             appState.isModelReady = false
+            appState.messages.append(ChatMessage(
+                id: UUID(),
+                role: .assistant,
+                content: "Model file not found. Please download a model first.",
+                timestamp: Date()
+            ))
+            return
+        }
+
+        // In a sandboxed app, gain access to the file's security scope.
+        // NSOpenPanel grants this automatically, but drag-and-drop or
+        // reconstructed URLs may need it explicitly.
+        let hasScope = url.startAccessingSecurityScopedResource()
+
+        let docPath = url.path
+
+        guard FileManager.default.isReadableFile(atPath: docPath) else {
+            if hasScope { url.stopAccessingSecurityScopedResource() }
+            appState.messages.append(ChatMessage(
+                id: UUID(),
+                role: .assistant,
+                content: "Cannot read the file. Try opening it from the file picker instead of drag-and-drop.",
+                timestamp: Date()
+            ))
             return
         }
 
         appState.isProcessing = true
-
-        let docPath = url.path
 
         let result = await Task.detached(priority: .userInitiated) {
             return sanctum_load_document(
@@ -69,6 +91,8 @@ class DocumentService {
                 modelPath.cString(using: .utf8)
             )
         }.value
+
+        if hasScope { url.stopAccessingSecurityScopedResource() }
 
         if result == 0 {
             appState.messages.append(ChatMessage(
@@ -81,7 +105,7 @@ class DocumentService {
             appState.messages.append(ChatMessage(
                 id: UUID(),
                 role: .assistant,
-                content: "Failed to load document. Make sure it's a readable PDF or text file.",
+                content: "Failed to load document. The model may need more RAM than available, or the file format is unsupported.",
                 timestamp: Date()
             ))
         }
