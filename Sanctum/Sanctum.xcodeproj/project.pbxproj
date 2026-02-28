@@ -17,6 +17,7 @@
 		BE09A8652F522EC2008FFD7B /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8572F522EC2008FFD7B /* ChatView.swift */; };
 		BE09A8662F522EC2008FFD7B /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8552F522EC2008FFD7B /* ModelManager.swift */; };
 		BE09A8682F522EC2008FFD7B /* DropZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A8582F522EC2008FFD7B /* DropZoneView.swift */; };
+		BE09A8792F523200008FFD7B /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE09A87A2F523200008FFD7B /* OCRService.swift */; };
 
 		BE09A86E2F522FEF008FFD7B /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86D2F522FEF008FFD7B /* Metal.framework */; };
 		BE09A8702F523023008FFD7B /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE09A86F2F523023008FFD7B /* MetalKit.framework */; };
@@ -50,6 +51,7 @@
 		BE09A8532F522EC2008FFD7B /* BridgeTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeTypes.swift; sourceTree = "<group>"; };
 		BE09A8542F522EC2008FFD7B /* DocumentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentService.swift; sourceTree = "<group>"; };
 		BE09A8552F522EC2008FFD7B /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
+		BE09A87A2F523200008FFD7B /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		BE09A8572F522EC2008FFD7B /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		BE09A8582F522EC2008FFD7B /* DropZoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneView.swift; sourceTree = "<group>"; };
 		BE09A8592F522EC2008FFD7B /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				BE09A8532F522EC2008FFD7B /* BridgeTypes.swift */,
 				BE09A8542F522EC2008FFD7B /* DocumentService.swift */,
 				BE09A8552F522EC2008FFD7B /* ModelManager.swift */,
+				BE09A87A2F523200008FFD7B /* OCRService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				BE09A8652F522EC2008FFD7B /* ChatView.swift in Sources */,
 				BE09A8662F522EC2008FFD7B /* ModelManager.swift in Sources */,
 				BE09A8682F522EC2008FFD7B /* DropZoneView.swift in Sources */,
+				BE09A8792F523200008FFD7B /* OCRService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

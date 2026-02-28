@@ -136,7 +136,7 @@ class DocumentService {
         if result == 0 {
             // Only show the greeting when this is a fresh document load,
             // not when switching back to a document with existing chat.
-            let hasOCRMessage = appState.messages.contains { $0.content.contains("running OCR") }
+            let hasOCRMessage = appState.messages.contains(where: { $0.content.contains("running OCR") })
             if appState.messages.isEmpty || hasOCRMessage {
                 let greeting = needsOCR
                     ? "Document scanned and loaded via OCR. What would you like to know?"
