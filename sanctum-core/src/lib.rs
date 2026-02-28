@@ -76,8 +76,8 @@ fn create_pipeline(doc_path: &str, _model_path: &str) -> anyhow::Result<Document
     let engine = InferenceEngine::new(Box::new(PlaceholderBackend));
     let embedder: Box<dyn Embedder> = Box::new(SimpleEmbedder);
 
-    // Default context window for Llama 3.1 8B: 128k tokens
-    DocumentPipeline::new(doc_path, engine, embedder, 128_000)
+    // Stub uses same conservative context as the real backend
+    DocumentPipeline::new(doc_path, engine, embedder, 2048)
 }
 
 /// Get the application support directory path.
@@ -146,13 +146,26 @@ pub unsafe extern "C" fn sanctum_load_document(
     let path = unsafe { CStr::from_ptr(path).to_string_lossy().into_owned() };
     let model_path = unsafe { CStr::from_ptr(model_path).to_string_lossy().into_owned() };
 
+    // Validate paths before expensive model loading
+    if !std::path::Path::new(&path).exists() {
+        eprintln!("sanctum_load_document: document not found: {}", path);
+        return -1;
+    }
+    if !std::path::Path::new(&model_path).exists() {
+        eprintln!("sanctum_load_document: model not found: {}", model_path);
+        return -1;
+    }
+
+    eprintln!("sanctum_load_document: loading doc={} model={}", path, model_path);
+
     match create_pipeline(&path, &model_path) {
         Ok(pipeline) => {
+            eprintln!("sanctum_load_document: pipeline created successfully");
             *PIPELINE.lock().unwrap() = Some(pipeline);
             0
         }
         Err(e) => {
-            eprintln!("Failed to load document: {}", e);
+            eprintln!("sanctum_load_document: failed: {}", e);
             -1
         }
     }

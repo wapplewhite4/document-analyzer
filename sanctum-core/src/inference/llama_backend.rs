@@ -47,16 +47,23 @@ impl LlamaCppBackend {
     pub fn load(model_path: &str) -> Result<Self> {
         let backend = LlamaBackend::init()?;
 
+        // On Apple Silicon the GPU shares system RAM, so offloading all
+        // layers to Metal improves speed without extra memory cost.
         let model_params = LlamaModelParams::default()
-            .with_n_gpu_layers(1000); // Offload all layers to GPU
+            .with_n_gpu_layers(1000);
 
         let model = LlamaModel::load_from_file(&backend, model_path, &model_params)?;
+
+        // Keep context size conservative to avoid OOM on 8 GB Macs.
+        // KV-cache cost is roughly 128–256 KB per token depending on model.
+        // 2048 tokens ≈ 256–512 MB KV-cache, safe alongside a 4.7–8.4 GB model.
+        let context_size: u32 = 2048;
 
         let this = Self {
             model,
             backend,
             context: Mutex::new(None),
-            context_size: 8192,
+            context_size,
         };
 
         // Create the context eagerly so Metal init happens once at load time
@@ -107,7 +114,7 @@ impl InferenceBackend for LlamaCppBackend {
         prompt: &str,
         on_token: &dyn Fn(&str),
     ) -> Result<String> {
-        let n_batch: usize = 2048;
+        let n_batch: usize = 512;
 
         self.ensure_context()?;
         let mut ctx_guard = self.context.lock().unwrap();
